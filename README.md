@@ -1,50 +1,57 @@
-# Autonomous AI Code Review Agent (v1.1)
-
+Autonomous AI Code Review Agent (v1.1)
 This project is an autonomous code review system that uses AI to analyze GitHub pull requests. It processes PRs asynchronously, provides structured feedback via an API, and can be integrated directly with GitHub webhooks for fully automated reviews.
 
-The system is built with FastAPI, Celery, Redis, Docker, and uses a LangChain agent with a local Ollama model (`llama3`) for AI analysis.
+The system is built with FastAPI, Celery, Redis, Docker, and uses a LangChain agent with a local Ollama model (llama3) for AI analysis.
 
-## Core Features
+Core Features
+FastAPI Endpoints: A structured API to submit, check status, and retrieve results.
 
--   **FastAPI Endpoints:** A structured API to submit, check status, and retrieve results.
--   **Asynchronous Processing:** Uses Celery and Redis to handle time-consuming AI analysis in the background without blocking the API.
--   **AI-Powered Review:** A LangChain agent prompts a local LLM (via Ollama) to analyze code diffs for bugs, style, performance, and best practices.
--   **GitHub Webhook Integration:** A `/webhook/github` endpoint automatically triggers reviews on `pull_request` events.
--   **Result Caching:** Caches results in Redis based on the PR's commit SHA to avoid re-analyzing unchanged code instantly.
--   **Structured Logging:** All logs are emitted as JSON (using `structlog`) for easy parsing in a production environment.
--   **Rate Limiting:** Protects the API from abuse using `slowapi`.
--   **Dockerized:** Fully containerized with `docker-compose` for one-command setup.
+Asynchronous Processing: Uses Celery and Redis to handle time-consuming AI analysis in the background without blocking the API.
 
----
+AI-Powered Review: A LangChain agent prompts a local LLM (via Ollama) to analyze code diffs for bugs, style, performance, and best practices.
 
-## Technical Stack
+GitHub Webhook Integration: A /webhook/github endpoint automatically triggers reviews on pull_request events.
 
--   **Backend:** Python 3.10
--   **API:** FastAPI
--   **Async Task Queue:** Celery
--   **Message Broker / Result / Cache:** Redis
--   **AI Agent:** LangChain
--   **LLM:** Ollama (e.g., `llama3`, `mistral`)
--   **Containerization:** Docker & Docker Compose
--   **Logging:** Structlog
--   **Rate Limiting:** SlowAPI
+Result Caching: Caches results in Redis based on the PR's commit SHA to avoid re-analyzing unchanged code instantly.
 
----
+Structured Logging: All logs are emitted as JSON (using structlog) for easy parsing in a production environment.
 
-## Project Setup & Running
+Rate Limiting: Protects the API from abuse using slowapi.
 
+Dockerized: Fully containerized with docker-compose for one-command setup.
+
+Technical Stack
+Backend: Python 3.10
+
+API: FastAPI
+
+Async Task Queue: Celery
+
+Message Broker / Result / Cache: Redis
+
+AI Agent: LangChain
+
+LLM: Ollama (e.g., llama3, mistral)
+
+Containerization: Docker & Docker Compose
+
+Logging: Structlog
+
+Rate Limiting: SlowAPI
+
+Project Setup & Running
 These instructions explain how to run the project on your local machine.
 
-### 1. Prerequisites
+1. Prerequisites
+Docker and Docker Compose
 
--   [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/)
--   [Ollama](https://ollama.com/download) installed and running on your host machine.
+Ollama installed and running on your host machine.
 
-### 2. Install Ollama Model
-
+2. Install Ollama Model
 Before starting, pull the AI model. Open your terminal and run:
 
-```bash
+Bash
+
 ollama pull llama3
 3. Configure Environment
 Clone this repository.
@@ -89,7 +96,7 @@ PowerShell
 curl -Method POST -Uri "http://localhost:8000/analyze-pr" `
 -Headers @{"Content-Type"="application/json"} `
 -Body '{
-    "repo_url": "[https://github.com/pallets/flask](https://github.com/pallets/flask)",
+    "repo_url": "https://github.com/pallets/flask",
     "pr_number": 5336
 }'
 cURL Command (for Mac/Linux):
@@ -99,7 +106,7 @@ Bash
 curl -X POST "http://localhost:8000/analyze-pr" \
 -H "Content-Type: application/json" \
 -d '{
-      "repo_url": "[https://github.com/pallets/flask](https://github.com/pallets/flask)",
+      "repo_url": "https://github.com/pallets/flask",
       "pr_number": 5336
     }'
 Response:
