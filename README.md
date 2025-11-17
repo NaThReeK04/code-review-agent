@@ -1,4 +1,4 @@
-# Autonomous AI Code Review Agent
+# Code-Review-Agent
 
 An autonomous code review system that uses AI to analyze GitHub pull requests. It implements a goal-oriented agent that can:
 
@@ -248,7 +248,7 @@ OLLAMA_MODEL=llama3
 
 ---
 
-## Running With Docker (Recommended)
+## Running With Docker 
 
 **Start API + worker + Redis:**
 
@@ -300,7 +300,7 @@ celery -A app.workers.celery_app.celery_app worker --loglevel=info
 
 ---
 
-## Using ngrok + GitHub Webhooks (Bonus)
+## Using ngrok + GitHub Webhooks 
 
 **Expose local API:**
 
@@ -381,6 +381,3 @@ pytest --cov=app
 - Code complexity & security scanning
 - Historical analytics dashboard
 
----
-
-**Happy Code Reviewing! 🚀**
