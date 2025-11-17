@@ -1,259 +1,331 @@
 Autonomous AI Code Review Agent (v1.1)
-This project is an autonomous code review system that uses AI to analyze GitHub pull requests. It processes PRs asynchronously, provides structured feedback via an API, and can be integrated directly with GitHub webhooks for fully automated reviews.
+An autonomous AI-powered code review system that automatically analyzes GitHub pull requests (PRs) using a local large language model. It provides structured, asynchronous feedback on code quality, style, and performance—and integrates seamlessly with GitHub webhooks for fully automated reviews.
 
-The system is built with FastAPI, Celery, Redis, Docker, and uses a LangChain agent with a local Ollama model (llama3) for AI analysis.
+🚀 Overview
+Autonomous AI Code Review Agent uses FastAPI, Celery, Redis, and LangChain (with Ollama-based local LLMs such as llama3) to review pull requests end-to-end. It is designed for developers who want fast, private, and automated AI code analysis directly within their development workflow.
 
-Core Features
-FastAPI Endpoints: A structured API to submit, check status, and retrieve results.
-
-Asynchronous Processing: Uses Celery and Redis to handle time-consuming AI analysis in the background without blocking the API.
-
-AI-Powered Review: A LangChain agent prompts a local LLM (via Ollama) to analyze code diffs for bugs, style, performance, and best practices.
-
-GitHub Webhook Integration: A /webhook/github endpoint automatically triggers reviews on pull_request events.
-
-Result Caching: Caches results in Redis based on the PR's commit SHA to avoid re-analyzing unchanged code instantly.
-
-Structured Logging: All logs are emitted as JSON (using structlog) for easy parsing in a production environment.
-
-Rate Limiting: Protects the API from abuse using slowapi.
-
-Dockerized: Fully containerized with docker-compose for one-command setup.
-
-Technical Stack
-Backend: Python 3.10
-
-API: FastAPI
-
-Async Task Queue: Celery
-
-Message Broker / Result / Cache: Redis
-
-AI Agent: LangChain
-
-LLM: Ollama (e.g., llama3, mistral)
-
-Containerization: Docker & Docker Compose
-
-Logging: Structlog
-
-Rate Limiting: SlowAPI
-
-Project Setup & Running
-These instructions explain how to run the project on your local machine.
-
+⚙️ Core Features
+FastAPI Endpoints: A structured API to submit PRs, check task status, and retrieve AI review results.
+Asynchronous Processing: Celery and Redis manage AI review tasks in the background.
+AI-Powered Review: LangChain agents analyze code diffs using local LLMs for bugs, style, and best practices.
+GitHub Webhook Integration: Automatically triggers code reviews on pull request events.
+Result Caching: Avoids redundant analysis using commit SHA-based caching.
+Structured Logging: Emits JSON logs via structlog for production observability.
+Rate Limiting: slowapi prevents endpoint abuse.
+Dockerized Deployment: Fully containerized for a one-command setup.
+🧠 Technical Stack
+Component	Technology
+Backend	Python 3.10
+API Framework	FastAPI
+Async Queue	Celery
+Broker/Cache	Redis
+AI Agent	LangChain
+LLM	Ollama (e.g., llama3, mistral)
+Containerization	Docker & Docker Compose
+Logging	Structlog
+Rate Limiting	SlowAPI
+🧩 Project Setup & Running
 1. Prerequisites
-Docker and Docker Compose
-
-Ollama installed and running on your host machine.
-
+Docker and Docker Compose installed
+Ollama installed and running locally
 2. Install Ollama Model
-Before starting, pull the AI model. Open your terminal and run:
-
-Bash
-
 ollama pull llama3
+
+text
+
 3. Configure Environment
-Clone this repository.
-
-Copy the example environment file:
-
-Bash
+Clone the repository and copy the environment example file:
 
 cp .env.example .env
-Open the .env file and add your GitHub Personal Access Token. This is required for the webhook and caching features.
+
+text
+
+Add your GitHub Personal Access Token to .env:
 
 GITHUB_TOKEN=ghp_...
-4. Build and Run Containers
-From the project root, run:
 
-Bash
+text
+
+4. Build and Run Containers
+From the project root:
 
 docker-compose up --build
-This will build the Docker images and start all three services:
 
-api: The FastAPI server on http://localhost:8000
+text
 
-worker: The Celery worker processing jobs.
+This starts:
 
-redis: The Redis database.
+api → FastAPI server at http://localhost:8000
+worker → Celery worker processing review jobs
+redis → Redis for message brokering and caching
+API Docs: http://localhost:8000/docs
 
-The API documentation is now available at http://localhost:8000/docs.
-
-Test Instructions & API Usage
-You can test the API with any terminal.
-
-Test 1: Manual Analysis
+🧪 Test Instructions & API Usage
+✅ Test 1: Manual Analysis
 Step 1. Submit a PR for Analysis
-Task: Submits a job to the queue.
-
 Endpoint: POST /analyze-pr
 
-PowerShell Command (for Windows):
+Example (Mac/Linux):
 
-PowerShell
-
-curl -Method POST -Uri "http://localhost:8000/analyze-pr" `
--Headers @{"Content-Type"="application/json"} `
--Body '{
-    "repo_url": "https://github.com/pallets/flask",
-    "pr_number": 5336
-}'
-cURL Command (for Mac/Linux):
-
-Bash
-
-curl -X POST "http://localhost:8000/analyze-pr" \
--H "Content-Type: application/json" \
+curl -X POST "http://localhost:8000/analyze-pr"
+-H "Content-Type: application/json"
 -d '{
-      "repo_url": "https://github.com/pallets/flask",
-      "pr_number": 5336
-    }'
+"repo_url": "https://github.com/pallets/flask",
+"pr_number": 5336
+}'
+
+text
+
 Response:
 
-JSON
-
 {
-  "task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
-  "status": "PENDING"
+"task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
+"status": "PENDING"
 }
-Step 2. Check Job Status
-Task: Check the status of the job. (Wait 30-60 seconds for the AI).
 
+text
+
+Step 2. Check Job Status
 Endpoint: GET /status/<task_id>
 
-PowerShell:
-
-PowerShell
-
-# Replace with your task_id
-curl -Uri "http://localhost:8000/status/3fee0bc3-6e37-48d6-ad07-a8040746bac3"
-cURL:
-
-Bash
-
-# Replace with your task_id
 curl "http://localhost:8000/status/3fee0bc3-6e37-48d6-ad07-a8040746bac3"
-Response (when done):
 
-JSON
+text
+
+Success Response:
 
 {
-  "task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
-  "status": "SUCCESS"
+"task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
+"status": "SUCCESS"
 }
-Step 3. Get the Results
-Task: Get the final JSON review.
 
+text
+
+Step 3. Get Review Results
 Endpoint: GET /results/<task_id>
 
-PowerShell:
-
-PowerShell
-
-# Replace with your task_id
-curl -Uri "http://localhost:8000/results/3fee0bc3-6e37-48d6-ad07-a8040746bac3"
-cURL:
-
-Bash
-
-# Replace with your task_id
 curl "http://localhost:8000/results/3fee0bc3-6e37-48d6-ad07-a8040746bac3"
-Response (Example JSON Output):
 
-JSON
+text
+
+Example Output:
 
 {
-  "task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
-  "status": "COMPLETED",
-  "results": {
-    "files": [
-      {
-        "file_path": "src/flask/app.py",
-        "issues": [
-          {
-            "type": "best_practice",
-            "line": 490,
-            "description": "The function `_check_for_deferred_endpoint_bound_method` has a very long name, which can slightly reduce readability.",
-            "suggestion": "Consider a shorter name like `_check_deferred_bound_method` if it doesn't sacrifice clarity within the module."
-          }
-        ]
-      }
-    ],
-    "summary": {
-      "total_files_reviewed": 1,
-      "total_issues_found": 1,
-      "critical_issues": 0,
-      "overview": "The pull request refactors internal endpoint handling logic. One minor best_practice issue regarding a long function name was identified. The overall change appears solid."
-    }
-  },
-  "error": null
+"task_id": "3fee0bc3-6e37-48d6-ad07-a8040746bac3",
+"status": "COMPLETED",
+"results": {
+"files": [
+{
+"file_path": "src/flask/app.py",
+"issues": [
+{
+"type": "best_practice",
+"line": 490,
+"description": "Function name is too long, reducing readability.",
+"suggestion": "Consider renaming to _check_deferred_bound_method."
 }
-Test 2: Automated Webhook Analysis
-This tests the full, automated workflow.
+]
+}
+],
+"summary": {
+"total_files_reviewed": 1,
+"total_issues_found": 1,
+"critical_issues": 0,
+"overview": "Refactor looks sound overall; minor style suggestion noted."
+}
+},
+"error": null
+}
 
-Expose Localhost: Your server at localhost:8000 must be visible to GitHub. We use ngrok for this.
+text
 
-Install ngrok.
+🤖 Test 2: Automated Webhook Analysis
+Use ngrok to expose your local FastAPI server.
 
-Add your free authtoken (one-time setup):
-
-Bash
-
+Step 1. Start ngrok
 ngrok config add-authtoken YOUR_TOKEN_HERE
-Run ngrok to get a public URL:
-
-Bash
-
 ngrok http 8000
-Copy the https://....ngrok-free.app URL. This is your Live API URL.
 
-Configure GitHub Webhook:
+text
 
-Go to a test repository you own on GitHub.
+Copy your live ngrok URL (e.g., https://1a2b-3c4d-5e6f.ngrok-free.app).
 
-Go to Settings > Webhooks > Add webhook.
-
-Payload URL: Paste your ngrok URL + /webhook/github (e.g., https://1a2b-3c4d-5e6f.ngrok-free.app/webhook/github)
-
+Step 2. Configure GitHub Webhook
+Go to Settings → Webhooks → Add webhook
+Payload URL:
+https://your-ngrok-url/webhook/github
 Content type: application/json
+Events: Select “Pull requests”
+After adding the webhook, opening or updating a PR will automatically trigger analysis.
 
-Which events? Select "Let me select individual events." and check "Pull requests".
+Check logs:
 
-Click "Add webhook".
+ngrok terminal: Should show POST /webhook/github 202 Accepted
+Docker logs: Celery worker starts analyzing automatically
+🧱 Design Decisions
+FastAPI: High performance, async support, and built-in OpenAPI documentation.
+Celery + Redis: Robust distributed task queue to decouple slow LLM processing.
+Ollama: Runs LLMs locally, ensuring privacy and eliminating API costs.
+LangChain: Provides prompt orchestration, parsing, and structured JSON output.
+Result Caching: Commit SHA–based caching avoids redundant AI work.
+Structured Logging: Ensures logs are JSON-formatted and easily integrated into tools like Datadog or Splunk.
+🔮 Future Improvements
+Database: Migrate from Redis to PostgreSQL for durable result storage.
+GitHub App Integration: Replace basic webhook with a secure GitHub App for posting inline PR comments.
+Multi-LLM Support: Enable dynamic model choices (Llama3, GPT-4o, Claude).
+Multi-Agent Analysis: Introduce agents specialized for Security, Performance, and Style.
+Automated Testing: Add pytest suite with mocks for external services.
+📜 License
+MIT License © 2025 – Autonomous AI Code Review Agent
+Developed for autonomous, efficient, and private AI-driven code analysis.
+Would you like this version to include a table of contents section with navigation links (common for large GitHub READMEs)?
 
-Test It:
+can u give me a downloaable readme file
 
-Go to your test repository and open a new Pull Request (or push a new commit to an existing one).
+A downloadable README.md file can be generated directly from your project’s description. Below is the content packaged in a file format you can copy into your environment or request as a file download.
 
-Observe:
+Since this platform cannot send files directly, you can do one of the following:
 
-The ngrok terminal will show a POST /webhook/github 202 Accepted.
+Copy the content below into a file named README.md in your project root.
 
-Your docker-compose logs will show the worker-1 service start the new task.
+Or save it using command-line redirection:
 
-The review has been triggered automatically. You can use the task_id from the logs to check the results, just like in Test 1.
+bash
+curl -o README.md https://pastebin.com/raw/your_paste_id_here
+Here’s the ready-to-save Markdown file content:
 
-Design Decisions
-FastAPI: Chosen for its high performance, async capabilities, and automatic documentation (/docs), which is ideal for an API-first service.
+text
 
-Celery & Redis: Selected for a robust, distributed task queue. This decouples the time-consuming AI analysis from the API request, preventing timeouts and allowing the system to be scaled (e.g., by adding more workers).
+Autonomous AI Code Review Agent (v1.1)
+An autonomous AI code review system that automatically analyzes GitHub pull requests using a local large language model (LLM). It provides structured, asynchronous feedback on code quality, performance, and best practices, with optional GitHub webhook automation.
 
-Ollama: Used to run powerful LLMs locally. This avoids API costs (OpenAI, Anthropic) and keeps data private.
+Overview
+Autonomous AI Code Review Agent uses FastAPI, Celery, Redis, and LangChain (with Ollama-based local LLMs like llama3) to review pull requests end-to-end. Designed for developers who want fast, private, and automated AI review directly in their workflows.
 
-LangChain: Acts as the "brain" or agent framework. It simplifies prompt management, output parsing (ensuring valid JSON), and interaction with the LLM.
+Core Features
+FastAPI endpoints to submit PRs, check task status, and retrieve AI-generated code reviews.
+Asynchronous processing with Celery and Redis for smooth, non-blocking AI analysis.
+Local AI analysis using LangChain agents with Ollama LLMs.
+Automatic GitHub webhook integration for pull request events.
+Commit SHA-based caching to skip redundant reviews.
+Structured JSON logs via structlog for production observability.
+Rate limiting to prevent abuse.
+Fully containerized Docker setup.
+Technical Stack
+Component	Technology
+Backend	Python 3.10
+API Framework	FastAPI
+Async Task Queue	Celery
+Broker/Cache	Redis
+AI Agent	LangChain
+LLM	Ollama (llama3, mistral)
+Containerization	Docker & Docker Compose
+Logging	Structlog
+Rate Limiting	SlowAPI
+Setup Instructions
+1. Prerequisites
+Docker and Docker Compose
+Ollama installed and running locally
+2. Pull the AI Model
+ollama pull llama3
 
-Result Caching: Implemented to improve performance and reduce redundant compute. Caching by commit SHA is a reliable way to ensure we only re-run analysis when the code actually changes.
+text
 
-Structured Logging: structlog was chosen to make all logs machine-readable (JSON). In a production system, this is non-negotiable for feeding into log aggregation tools (e.g., Splunk, Datadog).
+3. Configure Environment
+Clone the repository and copy .env.example:
 
+cp .env.example .env
+
+text
+
+Add your GitHub token:
+
+GITHUB_TOKEN=ghp_...
+
+text
+
+4. Build and Run
+docker-compose up --build
+
+text
+
+This starts:
+
+api – FastAPI server at http://localhost:8000
+worker – Celery task processor
+redis – Redis cache and broker
+Docs: http://localhost:8000/docs
+
+Testing & API Usage
+Manual Analysis
+Submit PR for analysis
+curl -X POST "http://localhost:8000/analyze-pr"
+-H "Content-Type: application/json"
+-d '{
+"repo_url": "https://github.com/pallets/flask",
+"pr_number": 5336
+}'
+
+text
+
+Check job status
+curl "http://localhost:8000/status/<task_id>"
+
+text
+
+Get results
+curl "http://localhost:8000/results/<task_id>"
+
+text
+
+Example response:
+
+{
+"task_id": "example-task-id",
+"status": "COMPLETED",
+"results": {
+"files": [...],
+"summary": {
+"total_files_reviewed": 1,
+"total_issues_found": 1,
+"critical_issues": 0
+}
+}
+}
+
+text
+
+Automated Webhook Analysis
+To test automatic PR analysis, use ngrok to expose your local instance.
+
+Setup steps
+Install and authenticate ngrok:
+ngrok config add-authtoken YOUR_TOKEN_HERE
+ngrok http 8000
+text
+
+In your GitHub repository:
+Go to Settings → Webhooks → Add webhook
+Payload URL: https://your-ngrok-url/webhook/github
+Content type: application/json
+Select: “Pull requests”
+Click Add webhook
+After creating or updating a PR:
+
+ngrok should display POST /webhook/github 202 Accepted
+Celery workers begin AI review automatically
+Design Choices
+FastAPI for high performance and async handling.
+Celery + Redis for a distributed, reliable task queue.
+Ollama to run local LLMs, keeping data private.
+LangChain for agent orchestration and structured JSON outputs.
+Structlog for clean, machine-readable logs.
+Commit-based caching to optimize performance.
 Future Improvements
-Database: Use PostgreSQL instead of Redis for the result backend. This allows for persistent, relational storage of all review history.
-
-GitHub App: Convert the service into a formal GitHub App instead of using a simple webhook. This would allow for a more secure authentication flow and the ability to post review comments directly onto the PR in GitHub.
-
-Multi-LLM Support: Refactor the agent to easily swap LLMs (e.g., llama3, gpt-4o, claude-3-sonnet) based on configuration, allowing users to choose their preferred model.
-
-In-Depth Analysis: Use a multi-agent framework (like LangGraph or CrewAI) to create a team of specialized agents (e.g., SecurityAgent, PerformanceAgent, StyleAgent) that collaborate on the review for more detailed feedback.
-
-Add Tests: Implement pytest unit tests for the API and agent logic, mocking external services.
+PostgreSQL backend for persistent, relational storage.
+GitHub App integration for inline PR comments.
+Multi-LLM support (GPT-4o, Claude, Llama3).
+Multi-agent collaboration using LangGraph or CrewAI.
+Unit testing with pytest and service mocks.
+License
+MIT License © 2025 – Autonomous AI Code Review Agent
