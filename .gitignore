@@ -1,0 +1,23 @@
+Environment files
+
+.env
+.env.*
+
+Python
+
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+IDE
+
+.vscode/
+.idea/
+
+Mac
+
+.DS_Store

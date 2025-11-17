@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+celery
+redis
+requests
+pydantic
+python-dotenv
+
+# AI Agent
+langchain
+langchain-community
+langchain-core
+
+# Bonus Features
+slowapi
+structlog
