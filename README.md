@@ -360,35 +360,17 @@ code-review-agent/
 
 │   ├── main.py
 
-│   ├── api/v1/routes.py
+│   ├── models.py
 
-│   ├── core/config.py
+│   ├── github_client.py
 
-│   ├── core/logging.py
+│   ├── logging_config.py
 
-│   ├── workers/celery_app.py
+│   ├── database.py
 
-│   ├── workers/tasks.py
+│   ├── celery_worker.py
 
-│   ├── services/github_client.py
-
-│   ├── services/caching.py
-
-│   ├── services/storage.py
-
-│   ├── agent/model_client.py
-
-│   ├── agent/reviewer.py
-
-│   └── schemas/pr.py
-
-├── tests/
-
-│   ├── test_api.py
-
-│   ├── test_agent.py
-
-│   └── test_tasks.py
+│   └── agent.py
 
 ├── docker-compose.yml
 
