@@ -685,8 +685,40 @@ curl -Uri "http://localhost:8000/task_id" | Select-Object -ExpandProperty Conten
 ```
 
 ---
+## Viewing Processed Data (MySQL)
 
+All processed code review results are persistently stored in the MySQL database.
 
+**1. Via Terminal (Docker)**
+You can query the database directly inside the running container:
+
+```bash
+# 1. Log into the database container
+docker exec -it code-review-agent-db-1 mysql -u user -p
+
+# 2. Enter password: password
+
+# 3. View the data
+USE codereviewdb;
+SELECT * FROM reviews \G;
+
+```
+**2. MySQL Workbench**
+The database port is exposed to localhost on port 3307 to avoid conflicts with local SQL installations.
+
+1.Open MySQL Workbench.
+
+2.Create a new connection with these settings:
+
+ -Hostname: 127.0.0.1
+
+ -Port: 3307
+
+ -Username: your_user_name
+
+ -Password: your_password
+
+3.Connect and view the reviews table.
 
 ## Testing
 
