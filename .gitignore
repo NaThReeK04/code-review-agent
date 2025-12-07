@@ -1,10 +1,8 @@
-Environment files
-
+# Environment files
 .env
 
-Python
-
-pycache/
+# Python
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -12,15 +10,12 @@ pycache/
 venv/
 env/
 
-IDE
-
+# IDE settings
 .vscode/
 .idea/
 
-Mac
-
+# macOS junk
 .DS_Store
 
-Docker
-
+# Docker
 docker-compose.yml
