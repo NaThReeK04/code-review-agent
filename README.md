@@ -330,15 +330,17 @@ curl -X POST http://localhost:8000/analyze-pr \
 **Check status:**
 
 ```bash
-curl http://localhost:8000/status/abc123
+curl http://localhost:8000/status/task_id
 ```
 
 **Fetch results:**
 
 ```bash
-curl http://localhost:8000/results/abc123
+curl http://localhost:8000/results/task_id
 ```
-
+```bash
+curl -Uri "http://localhost:8000/task_id" | Select-Object -ExpandProperty Content | python -m json.tool
+```
 ---
 
 ## Testing

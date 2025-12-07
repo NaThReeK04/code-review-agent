@@ -1,16 +1,15 @@
 version: '3.8'
 
 services:
-  # 1. MySQL Database (Containerized)
+  # 1. MySQL Database
   db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: codereviewdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-    # Expose port 3307 on your laptop -> maps to 3306 inside docker
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
@@ -36,9 +35,8 @@ services:
       - "8000:8000"
     env_file:
       - .env
-    # Connects to the 'db' container internally
     environment:
-      - DATABASE_URL=mysql+mysqlconnector://user:password@db:3306/codereviewdb
+      - DATABASE_URL=mysql+mysqlconnector://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
     depends_on:
       redis:
         condition: service_started
@@ -53,9 +51,8 @@ services:
       - ./app:/code/app
     env_file:
       - .env
-    # Connects to the 'db' container internally
     environment:
-      - DATABASE_URL=mysql+mysqlconnector://user:password@db:3306/codereviewdb
+      - DATABASE_URL=mysql+mysqlconnector://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}
     depends_on:
       redis:
         condition: service_started

@@ -10,7 +10,12 @@ python-dotenv
 langchain
 langchain-community
 langchain-core
+langchain-groq
 
 # Bonus Features
 slowapi
 structlog
+
+# Database
+sqlalchemy
+mysql-connector-python

@@ -20,3 +20,7 @@ IDE
 Mac
 
 .DS_Store
+
+Docker
+
+docker-compose.yml

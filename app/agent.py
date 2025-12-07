@@ -8,7 +8,7 @@ from app.models import AnalysisResult, AnalysisSummary
 # Use structured logger
 logger = structlog.get_logger(__name__)
 
-# System prompt template
+# [MODIFIED] Added explicit JSON example to force the model to conform
 SYSTEM_PROMPT_TEMPLATE = """
 You are an expert Autonomous Code Review Agent. Your goal is to analyze a given Git diff and provide a structured, actionable review.
 
@@ -21,12 +21,35 @@ You are an expert Autonomous Code Review Agent. Your goal is to analyze a given 
     - Best Practices (e.g., magic numbers, code duplication)
     - Security (e.g., SQL injection, hardcoded secrets)
     - Code Style (e.g., complex logic, poor naming)
-4.  You MUST provide your review in the following JSON format.
-5.  If a file has no issues, return an empty list `[]` for its `issues`.
-6.  If the diff is empty or has no code changes (e.g., only doc updates), return a result with empty file lists and a summary stating no code changes were found.
-7.  Be concise and constructive.
 
-**JSON Output Format:**
+**CRITICAL: JSON Output Format**
+You MUST provide your review in the following JSON format. 
+IMPORTANT: The "summary" field must be a nested OBJECT, not a string.
+
+**Example of Valid Output:**
+{{
+    "files": [
+        {{
+            "file_path": "src/main.py",
+            "issues": [
+                {{
+                    "type": "style",
+                    "line": 10,
+                    "description": "Line too long",
+                    "suggestion": "Break line"
+                }}
+            ]
+        }}
+    ],
+    "summary": {{
+        "total_files_reviewed": 1,
+        "total_issues_found": 1,
+        "critical_issues": 0,
+        "overview": "Brief overview of changes."
+    }}
+}}
+
+**Your JSON Schema:**
 {json_schema}
 """
 
